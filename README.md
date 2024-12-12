@@ -3,6 +3,9 @@
 This repository contains two FastAPI services: `spaceport` and `spaceship`. These services demonstrate interactions 
 between Kubernetes pods, focusing on observability and instrumentation.
 
+This repo was built for a local demo on my laptop so is utilising Docker Desktop Kuberenetes. This allows the docker 
+images to be built locally and docker shim will allow kubernetes to get these from the local Docker Desktop image cache
+
 ## Services
 
 ### Spaceport
@@ -30,7 +33,7 @@ You can deploy the services using Helm charts and specify the image version usin
 
 ### Example Helm Command
 ```sh
-helm upgrade --install enterprise spaceship/spaceship --set image.tag=v1 --set service.type=NodePort
-helm upgrade --install voyager spaceship/spaceship --set image.tag=v1 --set service.type=NodePort
+helm upgrade --install enterprise spaceship/spaceship --set image.tag=v1 --set service.nodePort=32001
+helm upgrade --install voyager spaceship/spaceship --set image.tag=v1 --set service.nodePort=32002
 helm upgrade --install deepspace9 spaceport/spaceport --set image.tag=v1
 ```
