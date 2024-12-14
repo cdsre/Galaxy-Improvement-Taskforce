@@ -1,22 +1,35 @@
-# Kubernetes Spaceport and Spaceship Services
+# Space Port Authority (SPA) Observability Journey
 
-This repository contains two FastAPI services: `spaceport` and `spaceship`. These services demonstrate interactions 
-between Kubernetes pods, focusing on observability and instrumentation.
+## Introduction
+In a Galaxy far, far away, in the DevOps Quadrant, spaceports were independently operated and each had their own processes
+and ways of working, with some being better than others. A Galaxy Improvement Taskforce (GIT) was formed to try to 
+standardise and provide a central space ledger to record spaceport activity. 
 
-This repo was built for a local demo on my laptop so is utilising Docker Desktop Kuberenetes. This allows the docker 
-images to be built locally and docker shim will allow kubernetes to get these from the local Docker Desktop image cache
+The starting point for the GIT was to provide observability into the spaceports. This would allow them to understand 
+where things were going wrong and why. The GIT decided to use OpenTelemetry to provide this observability. 
 
-## Services
+The first objective was to be able to track docking and separation of spaceships in each spaceport. v1 of the Spaceport
+Observation System (SOS) focuses on tracking the docking and separation of spaceships.
 
-### Spaceport
+## SOS Architecture
 
-The `spaceport` service manages docking and separation of spaceships. It provides endpoints to request docking, dock, 
-request separation, and separate ships.
+This repository contains two FastAPI services: [spaceport](./spaceport) and [spaceship](./spaceship). These services
+are created as container images and deployed into a kubernetes cluster.
 
-### Spaceship
+This repo was built for a local demo on my laptop so is utilising Docker Desktop Kubernetes. This allows the docker 
+images to be built locally and docker shim will allow kubernetes to get these from the local Docker Desktop image cache.
+The heml charts default to NodePort as the service type to allow us to set fixed ports for each instance of spaceships
+and spaceports. This is to allow us to easily switch between versions of the services and see the differences in the
+observability.
 
-The `spaceship` service interacts with the `spaceport` service. It obtains the ship ID from the container's hostname 
-and uses it to request docking and separation authorizations.
+
+## SOS Journey
+
+* [v1](v1/README.md) - Initial version of the Spaceport Observation System (SOS)
+
+
+
+
 
 ## Building Docker Images
 
