@@ -1,5 +1,6 @@
 from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
+from opentelemetry import metrics
 from typing import List, Dict
 import uuid
 import uvicorn
@@ -18,10 +19,20 @@ docked_ships: List[Ship] = []
 docking_requests: Dict[str, str] = {}  # ship_id -> authorization_code
 separation_requests: Dict[str, str] = {}  # ship_id -> authorization_code
 
+# Create some metrics
+docking_authorization_counter = metrics.get_meter("spaceport").create_counter("docking_authorization")
+docked_counter = metrics.get_meter("spaceport").create_counter("docked")
+separation_authorization_counter = metrics.get_meter("spaceport").create_counter("separation_authorization")
+separated_counter = metrics.get_meter("spaceport").create_counter("separated")
+currently_docked_counter = metrics.get_meter("spaceport").create_up_down_counter("currently_docked")
+current_passengers_counter = metrics.get_meter("spaceport").create_up_down_counter("current_passengers")
+passenger_arrivals_histogram = metrics.get_meter("spaceport").create_histogram("passenger_arrivals")
+
 @app.get("/request_docking/{ship_id}")
 def request_docking(ship_id: str):
     authorization_code = str(uuid.uuid4())
     docking_requests[ship_id] = authorization_code
+    docking_authorization_counter.add(1)
     return {"authorization_code": authorization_code}
 
 @app.post("/dock")
@@ -36,12 +47,16 @@ def dock(ship: Ship):
 
     docked_ships.append(ship)
     del docking_requests[ship.id]
+    currently_docked_counter.add(1)
+    current_passengers_counter.add(ship.passengers)
+    passenger_arrivals_histogram.record(ship.passengers, {"ship_id": ship.id})
     return {"message": "Ship docked successfully"}
 
 @app.get("/request_separation/{ship_id}")
 def request_separation(ship_id: str):
     authorization_code = str(uuid.uuid4())
     separation_requests[ship_id] = authorization_code
+    separation_authorization_counter.add(1)
     return {"authorization_code": authorization_code}
 
 @app.post("/separate")
@@ -52,6 +67,8 @@ def separate(ship: Ship):
         if docked_ship.id == ship.id:
             docked_ships.remove(docked_ship)
             del separation_requests[ship.id]
+            currently_docked_counter.add(-1)
+            current_passengers_counter.add(-ship.passengers)
             return {"message": "Ship separated successfully"}
     raise HTTPException(status_code=400, detail="Ship not found")
 

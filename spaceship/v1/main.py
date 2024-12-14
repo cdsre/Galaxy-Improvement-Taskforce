@@ -1,27 +1,27 @@
 from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
+from random import randint
 import requests
 import socket
 
 app = FastAPI()
+SHIP_ID = socket.gethostname()
 
 class Ship(BaseModel):
+    id: str = SHIP_ID
     authorization_code: str = None
+    passengers: int
 
-SHIP_ID = socket.gethostname()
 
 def request_authorization(spaceport: str, endpoint: str):
     response = requests.get(f"http://{spaceport}/{endpoint}/{SHIP_ID}")
     if response.status_code != 200:
         raise HTTPException(status_code=response.status_code, detail=response.json())
-    authorization_code = response.json().get("authorization_code")
-    if not authorization_code:
-        raise HTTPException(status_code=400, detail="Failed to get authorization code")
-    return authorization_code
+    return response.json().get("authorization_code")
 
 def perform_action(spaceport: str, endpoint: str, authorization_code: str):
-    ship = {"id": SHIP_ID, "authorization_code": authorization_code}
-    response = requests.post(f"http://{spaceport}/{endpoint}", json=ship)
+    ship: Ship = Ship(authorization_code=authorization_code, passengers=randint(2, 2000))
+    response = requests.post(f"http://{spaceport}/{endpoint}", json=ship.model_dump())
     if response.status_code != 200:
         raise HTTPException(status_code=response.status_code, detail=response.json())
     return response.json()

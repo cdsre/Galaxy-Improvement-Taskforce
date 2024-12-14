@@ -35,5 +35,5 @@ You can deploy the services using Helm charts and specify the image version usin
 ```sh
 helm upgrade --install enterprise spaceship/spaceship --set image.tag=v1 --set service.nodePort=32001
 helm upgrade --install voyager spaceship/spaceship --set image.tag=v1 --set service.nodePort=32002
-helm upgrade --install deepspace9 spaceport/spaceport --set image.tag=v1
+helm upgrade --install deepspace9 spaceport/spaceport --set image.tag=v1 --set service.nodePort=32000
 ```
