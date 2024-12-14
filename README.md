@@ -25,8 +25,8 @@ observability.
 
 ## SOS Journey
 
-* [v1](v1/README.md) - Initial version of the Spaceport Observation System (SOS)
-* [v2](v2/README.md) - Adding tracing to the SOS
+* [v1](docs/v1/README.md) - Initial version of the Spaceport Observation System (SOS)
+* [v2](docs/v2/README.md) - Adding tracing to the SOS
 
 
 
