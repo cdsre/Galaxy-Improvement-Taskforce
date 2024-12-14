@@ -27,6 +27,11 @@ spec:
         endpoint: "api.honeycomb.io:443" # US instance
         headers:
           "x-honeycomb-team": "${OTEL_HONEYCOMB_APIKEY}"
+      otlp/metrics:
+        endpoint: api.honeycomb.io:443
+        headers:
+          "x-honeycomb-team": "${OTEL_HONEYCOMB_APIKEY}"
+          x-honeycomb-dataset: space-metrics
 
     service:
       pipelines:
@@ -37,7 +42,7 @@ spec:
         metrics:
           receivers: [otlp]
           processors: [memory_limiter, batch]
-          exporters: [debug, otlp]
+          exporters: [debug]
         logs:
           receivers: [otlp]
           processors: [memory_limiter, batch]

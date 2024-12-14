@@ -36,6 +36,7 @@ serviceAccount:
 podAnnotations:
   instrumentation.opentelemetry.io/inject-python: "true"
   instrumentation.opentelemetry.io/otel-python-platform: "musl"
+
 # This is for setting Kubernetes Labels to a Pod.
 # For more information checkout: https://kubernetes.io/docs/concepts/overview/working-with-objects/labels/
 podLabels: {}

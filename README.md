@@ -37,3 +37,17 @@ helm upgrade --install enterprise spaceship/spaceship --set image.tag=v1 --set s
 helm upgrade --install voyager spaceship/spaceship --set image.tag=v1 --set service.nodePort=32002
 helm upgrade --install deepspace9 spaceport/spaceport --set image.tag=v1 --set service.nodePort=32000
 ```
+
+## Versions
+
+### v1
+v1 is the initial version of the services. It has no logging and just relies on the auto-intstrumentation from the OTEL
+operator. This version shows how its easy to see where something failed but hard to tell why it failed.
+
+### v2
+v2 adds logging to the services. This version shows how logging can help to understand why something failed. It starts 
+off as just logging and users have to find the trace ID in the backend and then grep for it in the logs to find the errors. 
+This is an improvement on v1 as we can now understand why it failed. But it still needs manual correlation of logs and
+traces.
+
+As an additional part of V2 we then introduce the python auto-instrumentation for logging to link logs to spans.
