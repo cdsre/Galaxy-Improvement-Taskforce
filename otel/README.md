@@ -12,3 +12,11 @@ helm install my-opentelemetry-operator open-telemetry/opentelemetry-operator \
 
 Once installed you can read more about configuring auto-instrumentation in the docs 
 https://opentelemetry.io/docs/kubernetes/operator/automatic/#did-the-instrumentation-resource-install
+
+# Kubernetes Secret
+In this example we are using honeycomb as the backend for the collector. We need to create a secret with the honeycomb api key.
+
+```shell
+kubectl create secret generic honeycomb \
+  --from-literal=HONEYCOMB_API_KEY=<YOUR_API_KEY>
+```
