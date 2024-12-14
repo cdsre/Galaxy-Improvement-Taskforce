@@ -12,14 +12,6 @@ In V2 the SOS enables auto-instrumentation using the OTEL Operator. The core ser
 instrumented to provide traces. The GIT can now see the journey of a spaceship from requesting authorisation to docking or
 separating from the spaceport.
 
-## Building Docker Images
-You can build Docker images for different versions of the services by specifying the version as a build argument.
-
-```sh
-docker build --build-arg VERSION=v2 -t spaceport:v2 spaceport/.
-docker build --build-arg VERSION=v2 -t spaceship:v2 spaceship/.
-```
-
 ## Deploying OpenTelemetry Instrumentation
 We will use the opentelemetry operator and install it via helm with a self-signed certificate. You can read more about 
 this in the [otel README.md](../otel/README.md).
@@ -30,22 +22,36 @@ Once installed deploy the OpenTelemetry Collector and Instrumentation.
 kubectl apply -f otel/v2/
 ```
 
-## Deploying with Helm
-You can deploy the services using Helm charts and specify the image version using the --set flag.
+## Redeploying the Services
+In order for our services to be auto-instrumented we need them to be started after the OTEL config has been deployed. 
+Since there is no change to our actual services or the helm charts we can just delete the existing pods and let the
+deployment controller recreate them.
 
 ```shell
-helm upgrade --install endeavour spaceship/spaceship --set image.tag=v2 --set service.nodePort=32000
-helm upgrade --install explorer spaceship/spaceship --set image.tag=v2 --set service.nodePort=32001
-helm upgrade --install invincible spaceship/spaceship --set image.tag=v2 --set service.nodePort=32002
-helm upgrade --install avenger spaceship/spaceship --set image.tag=v2 --set service.nodePort=32003
-helm upgrade --install venture spaceship/spaceship --set image.tag=v2 --set service.nodePort=32004
-helm upgrade --install pontus spaceport/spaceport --set image.tag=v2 --set service.nodePort=32500
-helm upgrade --install zura spaceport/spaceport --set image.tag=v2 --set service.nodePort=32501
+kubectl delete pods -l "space.observation.system/type"
+```
+
+After restarting you should be able to see the opentelemetry auto instrumentation container starting in the pod with your
+service. For example in the pontus pod
+
+```shell
+ kubectl describe pod -l app.kubernetes.io/instance=pontus
+ ...
+ ...
+ Events:
+  Type    Reason     Age    From               Message
+  ----    ------     ----   ----               -------
+  Normal  Scheduled  2m33s  default-scheduler  Successfully assigned default/pontus-spaceport-85cbfcc54f-7dmbh to docker-desktop
+  Normal  Pulled     2m30s  kubelet            Container image "ghcr.io/open-telemetry/opentelemetry-operator/autoinstrumentation-python:0.48b0" already present on machine
+  Normal  Created    2m29s  kubelet            Created container opentelemetry-auto-instrumentation-python
+  Normal  Started    2m29s  kubelet            Started container opentelemetry-auto-instrumentation-python
+  Normal  Pulled     2m19s  kubelet            Container image "spaceport:v2" already present on machine
+  Normal  Created    2m18s  kubelet            Created container spaceport
+  Normal  Started    2m18s  kubelet            Started container spaceport
 ```
 
 ## Testing
-We have set up each pod as a NodePort service so you can test the services by using curl to send a POST request to the
-spaceship, and it will interact with the spaceport. 
+We can test this with curl like we did in v1. 
 
 ### Dock
 ```shell
